@@ -1,0 +1,17 @@
+# Copyright (C) 2021 Morten Jagd Christensen, LICENSE: BSD2
+#
+
+VLCOVFLAGS = --annotate logs/annotate --annotate-all --annotate-min 1
+
+#
+runtest: all $(TARGETS)
+	for test in $(TARGETS); do ./$$test || exit 1; done
+
+
+coverage: runtest
+	verilator_coverage $(VLCOVFLAGS) -write-info logs/merged.info $(COVTARGETS)
+	genhtml logs/merged.info --output-directory logs/html
+
+
+gtest:
+	./scripts/makegtest
