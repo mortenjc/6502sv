@@ -7,13 +7,56 @@
 
 import common_types::data_t;
 import common_types::opc_t;
+import common_types::addmod_t;
 
 module decode(
   input data_t instr,
-  output opc_t opcode
-  //output addrmode_t mode
+  output opc_t opcode,
+  output addmod_t mode
   );
 
+
+  // decode addressing modes
+  always_comb begin
+    case (instr)
+      //
+      8'h96: mode = common_types::ZPY;
+      8'hB6: mode = common_types::ZPY;
+      8'hBE: mode = common_types::ABSY;
+      default: // pattern matched instructions
+        casez (instr)
+          // cc = 01 instructions
+          8'b??????01:
+            case (instr[4:2])
+              0: mode = common_types::IXID;
+              1: mode = common_types::ZP;
+              2: mode = common_types::IMM;
+              3: mode = common_types::ABS;
+              4: mode = common_types::IDIX;
+              5: mode = common_types::ZPX;
+              6: mode = common_types::ABSY;
+              7: mode = common_types::ABSX;
+            endcase
+          // cc = 10 instructions
+          8'b??????10:
+            case (instr[4:2])
+              0: mode = common_types::IMM;
+              1: mode = common_types::ZP;
+              2: mode = common_types::ACC;
+              3: mode = common_types::ABS;
+              5: mode = common_types::ZPX;
+              7: mode = common_types::ABSX;
+              default: mode = common_types::UNKN;
+            endcase
+
+          default: mode = common_types::UNKN; // casez
+        endcase // casez (instr)
+
+      endcase // case (instr)
+  end
+
+
+  // Decode opcodes
   always_comb begin
   case (instr)
     //

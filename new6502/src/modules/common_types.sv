@@ -16,6 +16,7 @@ typedef enum logic [1:0] {
 } state_t /* verilator public */ ;
 
 
+// Opcodes
 // Mostly from http://nparker.llx.com/a2/opcodes.html
 typedef enum logic [5:0] {
   U,
@@ -29,5 +30,24 @@ typedef enum logic [5:0] {
   TXA, TXS, TAX, TSX,   DEX, NOP
 } opc_t /* verilator public */ ;
 
+
+// Addressing modes
+// http://nparker.llx.com/a2/opcodes.html
+typedef enum logic [5:0] {
+  IXID,      // ZP indexed indirect - ($xx, X)
+  ZP,        // Zero Page - $xx
+  IMM,       // immediate - #$xx
+  ABS,       // absolute - $abcd
+  INDY,      //
+  IDIX,      // ZP indirect indexed - ($xx),Y
+  ZPX,       // Zero Page X - $xx,X
+  ZPY,       // Zero Page Y - $xx,Y
+  ABSX,      // Absolute X - $xxxx,X
+  ABSY,      // Absolute Y - $xxxx,Y
+  ACC,       // Accumulator
+  // IMP,       // Implied
+  // REL        // Relative
+  UNKN       // Unknown - unassigned
+} addmod_t /* verilator public */ ;
 
 endpackage : common_types

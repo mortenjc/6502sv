@@ -92,6 +92,34 @@ std::vector<struct TestCase> TestCases {
   {"NOP", opc_t::NOP, {0xEA}}
 };
 
+
+// For addressing mode deocde
+struct AddModTestCase {
+  std::string name;
+  uint8_t exp_mode;
+  std::vector<uint8_t> instr;
+};
+
+using addmod_t = decode_common_types::addmod_t;
+
+std::vector<struct AddModTestCase> AddModTestCases {
+  //                                    01 instructions                                    10 instructions
+  {"Indexed,Indirect", addmod_t::IXID, {0x01, 0x21, 0x41, 0x61, 0x81, 0xA1, 0xC1, 0xE1}},
+  {"Zero Page",        addmod_t::ZP,   {0x05, 0x25, 0x45, 0x65, 0x85, 0xA5, 0xC5, 0xE5,    0x06, 0x26, 0x46, 0x66, 0x86, 0xA6, 0xC6, 0xE6}},
+  {"Immediate",        addmod_t::IMM,  {0x09, 0x29, 0x49, 0x69, 0x89, 0xA9, 0xC9, 0xE9,    0xA2}},
+  {"Absolute",         addmod_t::ABS,  {0x0D, 0x2D, 0x4D, 0x6D, 0x8D, 0xAD, 0xCD, 0xED,    0x0E, 0x2E, 0x4E, 0x6E, 0x8E, 0xAE, 0xCE, 0xEE}},
+  {"Indirect,Indexed", addmod_t::IDIX, {0x11, 0x31, 0x51, 0x71, 0x91, 0xB1, 0xD1, 0xF1}},
+  {"Zero Page,X",      addmod_t::ZPX,  {0x15, 0x35, 0x55, 0x75, 0x95, 0xB5, 0xD5, 0xF5,    0x16, 0x36, 0x56, 0x76, /*0x96, 0xB6,*/ 0xD6, 0xF6}},
+  {"Zero Page,Y",      addmod_t::ZPY,  {                                                                            0x96, 0xB6}},
+  {"Absolute,Y",       addmod_t::ABSY, {0x19, 0x39, 0x59, 0x79, 0x99, 0xB9, 0xD9, 0xF9,                             0xBE}},
+  {"Absolute,X",       addmod_t::ABSX, {0x1D, 0x3D, 0x5D, 0x7D, 0x9D, 0xBD, 0xDD, 0xFD,    0x1E, 0x3E, 0x5E, 0x7E, /*0xBE */ 0xDE, 0xFe}},
+  {"Accumulator",      addmod_t::ACC,  {                                                   0x0A, 0x2A, 0x4A, 0x6A}},
+};
+
+//
+// Test harness
+//
+
 class DecodeTest: public ::testing::Test {
 protected:
   decode * dec;
@@ -106,7 +134,9 @@ protected:
   }
 };
 
-
+//
+// Test cases
+//
 
 TEST_F(DecodeTest, InitialState) {
   dec->eval();
@@ -130,6 +160,27 @@ TEST_F(DecodeTest, Instructions) {
 }
 
 
+TEST_F(DecodeTest, BRKAddMod) {
+  dec->instr = 0x01;
+  dec->eval();
+  ASSERT_EQ(dec->mode, addmod_t::IXID);
+}
+
+TEST_F(DecodeTest, InstAddMod) {
+  uint8_t InstCount{0};
+  for (auto & test : AddModTestCases) {
+    printf("%s ", test.name.c_str());
+    for (auto & instr : test.instr) {
+      printf("0x%02x ", instr);
+      dec->instr = instr;
+      dec->eval();
+      ASSERT_EQ(dec->mode, test.exp_mode);
+      InstCount++;
+    }
+    printf("\n");
+  }
+  printf("Tested %d instructions\n", InstCount);
+}
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
