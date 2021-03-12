@@ -45,8 +45,8 @@ typedef enum logic [5:0] {
   ABSX,      // Absolute X - $xxxx,X
   ABSY,      // Absolute Y - $xxxx,Y
   ACC,       // Accumulator
-  // IMP,       // Implied
-  // REL        // Relative
+  REL,       // Relative
+  IMP,       // Implied
   UNKN       // Unknown - unassigned
 } addmod_t /* verilator public */ ;
 

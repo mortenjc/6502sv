@@ -20,6 +20,42 @@ module decode(
   always_comb begin
     case (instr)
       //
+      8'h00: mode = common_types::IMP; // BRK
+      8'h08: mode = common_types::IMP; // PHP
+      8'h18: mode = common_types::IMP; // CLC
+      8'h28: mode = common_types::IMP; // PLP
+      8'h38: mode = common_types::IMP; // SEC
+      8'h40: mode = common_types::IMP; // RTI
+      8'h48: mode = common_types::IMP; // PHA
+      8'h58: mode = common_types::IMP; // CLI
+      8'h60: mode = common_types::IMP; // RTS
+      8'h68: mode = common_types::IMP; // PLA
+      8'h78: mode = common_types::IMP; // SED
+      8'h88: mode = common_types::IMP; // DEY
+      8'h8A: mode = common_types::IMP; // TXA
+      8'h98: mode = common_types::IMP; // TYA
+      8'h9A: mode = common_types::IMP; // TXS
+      8'hA8: mode = common_types::IMP; // TAY
+      8'hAA: mode = common_types::IMP; // TAX
+      8'hB8: mode = common_types::IMP; // CLV
+      8'hBA: mode = common_types::IMP; // TSX
+      8'hC8: mode = common_types::IMP; // INY
+      8'hCA: mode = common_types::IMP; // DEX
+      8'hD8: mode = common_types::IMP; // CLD
+      8'hE8: mode = common_types::IMP; // INX
+      8'hEA: mode = common_types::IMP; // NOP
+      8'hF8: mode = common_types::IMP; // SED
+
+      8'h10: mode = common_types::REL;
+      8'h20: mode = common_types::REL;
+      8'h30: mode = common_types::REL;
+      8'h50: mode = common_types::REL;
+      8'h70: mode = common_types::REL;
+      8'h90: mode = common_types::REL;
+      8'hB0: mode = common_types::REL;
+      8'hD0: mode = common_types::REL;
+      8'hF0: mode = common_types::REL;
+
       8'h96: mode = common_types::ZPY;
       8'hB6: mode = common_types::ZPY;
       8'hBE: mode = common_types::ABSY;
@@ -43,6 +79,16 @@ module decode(
               0: mode = common_types::IMM;
               1: mode = common_types::ZP;
               2: mode = common_types::ACC;
+              3: mode = common_types::ABS;
+              5: mode = common_types::ZPX;
+              7: mode = common_types::ABSX;
+              default: mode = common_types::UNKN;
+            endcase
+          // cc = 00 instructions
+          8'b??????00:
+            case (instr[4:2])
+              0: mode = common_types::IMM;
+              1: mode = common_types::ZP;
               3: mode = common_types::ABS;
               5: mode = common_types::ZPX;
               7: mode = common_types::ABSX;
