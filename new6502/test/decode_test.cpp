@@ -108,7 +108,7 @@ std::vector<struct AddModTestCase> AddModTestCases {
   {"Zero Page",        addmod_t::ZP,   {0x05, 0x25, 0x45, 0x65, 0x85, 0xA5, 0xC5, 0xE5,
                                         0x06, 0x26, 0x46, 0x66, 0x86, 0xA6, 0xC6, 0xE6,
                                         0x24, 0x84, 0xA4, 0xC4, 0xE4}},
-  {"Immediate",        addmod_t::IMM,  {0x09, 0x29, 0x49, 0x69, 0x89, 0xA9, 0xC9, 0xE9,
+  {"Immediate",        addmod_t::IMM,  {0x09, 0x29, 0x49, 0x69, 0xA9, 0xC9, 0xE9,
                                         0xA2,
                                         0xA0, 0xC0, 0xE0}},
   {"Absolute",         addmod_t::ABS,  {0x0D, 0x2D, 0x4D, 0x6D, 0x8D, 0xAD, 0xCD, 0xED,
@@ -137,6 +137,9 @@ std::vector<struct AddModTestCase> AddModTestCases {
 // Test harness
 //
 
+uint8_t OpcodeInstr[256];
+uint8_t AddModInstr[256];
+
 class DecodeTest: public ::testing::Test {
 protected:
   decode * dec;
@@ -161,10 +164,14 @@ TEST_F(DecodeTest, InitialState) {
 }
 
 TEST_F(DecodeTest, Instructions) {
+  memset(OpcodeInstr, 0, sizeof(OpcodeInstr));
   uint8_t InstCount{0};
+
   for (auto & test : TestCases) {
     printf("%s ", test.name.c_str());
     for (auto & instr : test.instr) {
+      ASSERT_EQ(OpcodeInstr[instr], 0);
+      OpcodeInstr[instr]++;
       printf("0x%02x ", instr);
       dec->instr = instr;
       dec->eval();
@@ -184,14 +191,14 @@ TEST_F(DecodeTest, BRKAddMod) {
 }
 
 TEST_F(DecodeTest, InstAddMod) {
+  memset(AddModInstr, 0, sizeof(AddModInstr));
   uint8_t InstCount{0};
-  uint8_t InstrRef[256];
-  memset(InstrRef, 0, sizeof(InstrRef));
+
   for (auto & test : AddModTestCases) {
     printf("%s ", test.name.c_str());
     for (auto & instr : test.instr) {
-      ASSERT_EQ(InstrRef[instr], 0);
-      InstrRef[instr]++;
+      ASSERT_EQ(AddModInstr[instr], 0);
+      AddModInstr[instr]++;
       printf("0x%02x ", instr);
       dec->instr = instr;
       dec->eval();
@@ -201,6 +208,14 @@ TEST_F(DecodeTest, InstAddMod) {
     printf("\n");
   }
   printf("Tested %d instructions\n", InstCount);
+}
+
+TEST_F(DecodeTest, CompareTests) {
+  for (int i = 0; i < 256; i++) {
+    //ASSERT_EQ(OpcodeInstr[i], 1);
+    //printf("%d, ", i);
+    ASSERT_EQ(OpcodeInstr[i], AddModInstr[i]);
+  }
 }
 
 int main(int argc, char **argv) {
