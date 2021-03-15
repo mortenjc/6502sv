@@ -7,7 +7,7 @@
 
 package common_types;
 
-typedef logic[8:0] addr_t /* verilator public */ ;
+typedef logic[15:0] addr_t /* verilator public */ ;
 typedef logic[7:0] data_t /* verilator public */ ;
 
 // enums
@@ -49,5 +49,15 @@ typedef enum logic [5:0] {
   IMP,       // Implied
   UNKN       // Unknown - unassigned
 } addmod_t /* verilator public */ ;
+
+// Selector for displaying data on the 7 segment display
+typedef enum logic [2:0] {
+  CC,
+  PC,
+  ADDR,
+  OP,
+  INSTR,
+  STATE
+} dispsel_t /* verilator public */ ;
 
 endpackage : common_types

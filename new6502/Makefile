@@ -3,11 +3,11 @@
 
 include makefiles/Makefile.macros
 
-MODULES = cpu decode
-CFLAGS.cpu = -Gmemory_file='"test/cpumemory_test.data"'
-UNITS =
-UNITS.dspmod =
-
+MODULES = decode #cpu
+UNITS = ledunit cpuunit
+UNITS.ledunit = src/modules/ledctrl.sv
+UNITS.cpuunit = src/modules/decode.sv
+CFLAGS.cpuunit = -Gmemory_file='"test/cpumemory_test.data"'
 
 TARGETS = $(addsuffix Test, $(addprefix bin/, $(MODULES))) $(addsuffix Test, $(addprefix bin/, $(UNITS)))
 COVTARGETS = $(addsuffix .dat, $(addprefix logs/, $(MODULES)))
@@ -23,7 +23,7 @@ $(foreach module, $(MODULES), $(eval $(call make_bintargets,$(module))))
 $(foreach unit, $(UNITS), $(eval $(call make_bintargets,$(unit))))
 # dependencies
 $(foreach module, $(MODULES), $(eval $(call make_mktargets,$(module),modules,,$(CFLAGS.$(module)))))
-$(foreach unit, $(UNITS), $(eval $(call make_mktargets,$(unit),units,$(UNITS.$(unit)))))
+$(foreach unit, $(UNITS), $(eval $(call make_mktargets,$(unit),units,$(UNITS.$(unit)),$(CFLAGS.$(unit)))))
 
 
 include makefiles/Makefile.test
