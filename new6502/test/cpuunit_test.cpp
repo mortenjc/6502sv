@@ -66,23 +66,39 @@ TEST_F(CPUunitTest, Constructor) {
 TEST_F(CPUunitTest, InstrINX) {
   u->state = state::fetch;
   u->PC = 0x0010;
-  clockCycles(18); // 16 instr * 2 cycles + 2
+  clockCycles(0x21); // 16 instr * 2 cycles + 1
   ASSERT_EQ(u->X, 16);
   ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x0020);
 }
 
 TEST_F(CPUunitTest, InstrLDXI) {
   u->state = state::fetch;
   u->PC = 0x0030;
-  clockCycles(5); //
+  clockCycles(3); // 1 inst
   ASSERT_EQ(u->X, 0xAA);
   ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x0032);
 }
 
-// TEST_F(CPUunitTest, ThirtyClocks) {
-//   clockCycles(40);
-//   ASSERT_EQ(u->clocks, 39);
-// }
+TEST_F(CPUunitTest, InstrMixLDXIandINX) {
+  u->state = state::fetch;
+  u->PC = 0x0040;
+  clockCycles(5); // 2 inst * 2 cycles + 1
+  ASSERT_EQ(u->X, 0xBC);
+  ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x0043);
+}
+
+TEST_F(CPUunitTest, InstrLDXZP) {
+  u->state = state::fetch;
+  u->PC = 0x0050;
+  clockCycles(4); // 1 inst * 3 cycles + 1
+  ASSERT_EQ(u->X, 0xFF);
+  ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x0052);
+}
+
 
 
 int main(int argc, char **argv) {

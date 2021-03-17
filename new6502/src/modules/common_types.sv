@@ -12,7 +12,8 @@ typedef logic[7:0] data_t /* verilator public */ ;
 
 // enums
 typedef enum logic [1:0] {
-  fetch, decode
+  fetch, decode,
+  memlo // used for ZP
 } state_t /* verilator public */ ;
 
 
