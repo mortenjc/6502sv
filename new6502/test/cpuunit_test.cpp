@@ -99,6 +99,15 @@ TEST_F(CPUunitTest, InstrLDXZP) {
   ASSERT_EQ(u->PC, 0x0052);
 }
 
+TEST_F(CPUunitTest, InstrJMPA) {
+  u->state = state::fetch;
+  u->PC = 0x0060;
+  clockCycles(4); // 1 inst * 3 cycles + 1
+  printf("PC: %04x: addrlo: $%02x, addrhi: $%02x\n", u->PC, u->addrlo, u->addrhi);
+  ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x0050);
+}
+
 
 
 int main(int argc, char **argv) {

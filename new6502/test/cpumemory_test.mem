@@ -4,13 +4,13 @@ E8 E8 E8 E8  E8 E8 E8 E8 // x0010 - Test: InstrINX
 E8 E8 E8 E8  E8 E8 E8 E8 // expect X == 16
 00 00 00 00  00 00 00 00
 00 00 00 00  00 00 00 00
-A2 AA 00 00  00 00 00 00 // 0x0030: Test: InstrLDXI, expect X == $AA
+A2 AA 00 00  00 00 00 00 // 0x0030: InstrLDXI, expect X == $AA
 00 00 00 00  00 00 00 00
-A2 BB E8 00  00 00 00 00 // 0x0040: Test: InstrMixLDXIandINX, expect X == $BC
+A2 BB E8 00  00 00 00 00 // 0x0040: InstrMixLDXIandINX, expect X == $BC
 00 00 00 00  00 00 00 00
-A6 0C 00 00  00 00 00 00 // 0x0050: Test: InstrLDXZP, expect X == $FF
+A6 0C 00 00  00 00 00 00 // 0x0050: InstrLDXZP, expect X == $FF
 00 00 00 00  00 00 00 00
-00 00 00 00  00 00 00 00
+4C 50 00 00  00 00 00 00 // 0x0060: InstrJMPA, expect X == $FF, PC == 0x0050
 00 00 00 00  00 00 00 00
 00 00 00 00  00 00 00 00
 00 00 00 00  00 00 00 00

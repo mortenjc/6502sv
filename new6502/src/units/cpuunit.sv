@@ -22,6 +22,7 @@ module cpuunit(
   output opc_t opc,
   output addmod_t addmode,
   output data_t addrlo,
+  output data_t addrhi,
   output addr_t clocks
   );
 
@@ -50,8 +51,8 @@ module cpuunit(
 
   // Debug
   always_ff @ (posedge clk) begin
-    $display("clock: %d, PC: %h, IR %h [X:%h] (state: %-6s, opcode %3s, mode %5s)",
-             clocks, PC, IR,
+    $display("clock: %d, PC: %h, IR %h alo %h ahi %h [X:%h] (state: %-6s, opcode %3s, mode %5s)",
+             clocks, PC, IR, addrlo, addrhi,
              X, state.name(), opc.name(), addmode.name());
   end
 
@@ -65,6 +66,9 @@ module cpuunit(
 
       common_types::decode:
         case (opc)
+          common_types::JMP:
+            if (addmode == common_types::ABS)
+              addrlo <= memory_table[PC[8:0] + 1];
           common_types::LDX:
             if (addmode == common_types::ZP)
               addrlo <= memory_table[PC[8:0] + 1];
@@ -75,7 +79,13 @@ module cpuunit(
 
           default: nop <= nop;
         endcase
-      common_types::memlo: X <= memory_table[{1'b0, addrlo}];
+
+      common_types::memlo:
+        if (opc == common_types::LDX)
+          X <= memory_table[{1'b0, addrlo}];
+        else if (opc == common_types::JMP)
+          addrhi <= memory_table[PC[8:0] + 2];
+
       default: nop <= nop;
     endcase
   end
@@ -99,6 +109,8 @@ module cpuunit(
       common_types::memlo:
         if (addmode == common_types::ZP)
           PC <= PC + 2;
+        else if (addmode == common_types::ABS)
+          PC <= {addrhi, addrlo};
 
       default: PC <= PC;
     endcase
@@ -111,7 +123,7 @@ module cpuunit(
     case (state)
       common_types::fetch: state <= common_types::decode;
       common_types::decode:
-        if (addmode == common_types::ZP)
+        if (addmode == common_types::ZP || addmode == common_types::ABS)
           state <= common_types::memlo;
         else
           state <= common_types::fetch;
