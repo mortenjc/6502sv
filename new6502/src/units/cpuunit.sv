@@ -40,8 +40,8 @@ module cpuunit(
 
 
   // memory
-  parameter memory_file="cpumemory_test.mem";
-  data_t memory_table[512];
+  parameter memory_file="test/cpumemory_test.mem";
+  data_t memory_table[9];
 
   initial begin
     $display("Loading rom ...");
@@ -50,11 +50,11 @@ module cpuunit(
 
 
   // Debug
-  always_ff @ (posedge clk) begin
-    $display("clock: %d, PC: %h, IR %h alo %h ahi %h [X:%h] (state: %-6s, opcode %3s, mode %5s)",
-             clocks, PC, IR, addrlo, addrhi,
-             X, state.name(), opc.name(), addmode.name());
-  end
+  //always_ff @ (posedge clk) begin
+  //  $display("clock: %d, PC: %h, IR %h alo %h ahi %h [X:%h] (state: %-6s, opcode %3s, mode %5s)",
+  //           clocks, PC, IR, addrlo, addrhi,
+  //           X, state.name(), opc.name(), addmode.name());
+  //end
 
 
   data_t nop;
@@ -75,7 +75,7 @@ module cpuunit(
             else
               X <= memory_table[PC[8:0] + 1];
 
-          common_types::INX: X <= X + 1;
+          common_types::INX: X <= X + 1'd1;
 
           default: nop <= nop;
         endcase
@@ -101,20 +101,20 @@ module cpuunit(
 
       common_types::decode:
         case (addmode)
-          common_types::IMP: PC <= PC + 1;
-          common_types::IMM: PC <= PC + 2;
+          common_types::IMP: PC <= PC + 16'd1;
+          common_types::IMM: PC <= PC + 16'd2;
           default: PC <= PC;
         endcase
 
       common_types::memlo:
         if (addmode == common_types::ZP)
-          PC <= PC + 2;
+          PC <= PC + 16'd2;
         else if (addmode == common_types::ABS)
           PC <= {addrhi, addrlo};
 
       default: PC <= PC;
     endcase
-    clocks <= clocks + 1;
+    clocks <= clocks + 1'd1;
   end
 
 
