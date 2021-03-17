@@ -7,7 +7,7 @@ MODULES = decode #cpu
 UNITS = ledunit cpuunit
 UNITS.ledunit = src/modules/ledctrl.sv
 UNITS.cpuunit = src/modules/decode.sv
-CFLAGS.cpuunit = -Gmemory_file='"test/cpumemory_test.data"'
+CFLAGS.cpuunit = -Gmemory_file='"test/cpumemory_test.mem"'
 
 TARGETS = $(addsuffix Test, $(addprefix bin/, $(MODULES))) $(addsuffix Test, $(addprefix bin/, $(UNITS)))
 COVTARGETS = $(addsuffix .dat, $(addprefix logs/, $(MODULES)))

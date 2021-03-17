@@ -13,98 +13,89 @@ import common_types::opc_t;
 
 module cpuunit(
   input bit clk,
-  input bit rst,
 
   output data_t X,
-  //output data_t Y,
-  output data_t A,
   // debug
   output state_t state,
   output addr_t PC,
   output data_t IR,
+  // output data_t OP1,
   output addr_t clocks
   );
 
-
-  opc_t cpu_opcode;
-  addmod_t cpu_addmode;
+  opc_t opcode;
+  addmod_t addmode;
   //
 
-
-  opc_t opcode;
-  addmod_t mode;
+  // always updated will be stored during fetch
+  opc_t decode_opcode;
+  addmod_t decode_addmode;
   decode decode_i(
     .instr(IR),
-    .opcode(opcode),
-    .mode(mode)
+    .opcode(decode_opcode),
+    .mode(decode_addmode)
     );
 
 
   // memory
-  parameter memory_file="cpumemory_test.data";
+  parameter memory_file="cpumemory_test.mem";
   data_t memory_table[512];
 
   initial begin
-    $display("Loading rom.");
+    $display("Loading rom ...");
     $readmemh(memory_file, memory_table);
   end
 
-  // X register
+
+
+  data_t nop;
+  // Registers and memory
   always_ff @ (posedge clk) begin
-    if (state == common_types::decode)
-      case (opcode)
-        common_types::TAX: X <= A;
-        common_types::TXA: A <= X;
-        common_types::INX: X <= X + 1;
-        common_types::DEX: X <= X - 1;
-        default: X <= X;
-      endcase
-    else
-      X <= X;
+    case (state)
+      common_types::fetch:
+        IR <= memory_table[PC[8:0]];
+
+      common_types::decode:
+        case (opcode)
+          common_types::LDX: X <= memory_table[PC[8:0] + 1];
+          common_types::INX: X <= X + 1;
+          default: nop <= nop;
+        endcase
+      default: nop <= nop;
+    endcase
   end
 
   // PC and clocks handling
   always_ff @ (posedge clk) begin
-    case (state)
-      common_types::rst0: PC <= 0;
-      common_types::decode: begin
-        cpu_opcode <= opcode;
-        cpu_addmode <= mode;
+  $display("clock: %d, PC: %h, IR %h [X:%h] (state: %-6s, opcode %3s, mode %5s)",
+           clocks, PC, IR,
+           X, state.name(), opcode.name(), addmode.name());
 
-        case (opcode)
-          common_types::BRK: PC <= 0;
-          default :PC <= PC + 1;
-        endcase
-        $display("clock: %d, PC: %d, IR %d [X%d A%d] (state: %-6s, opcode %3s, mode %5s)",
-                 clocks, PC, IR,
-                 X, A,
-                 state.name(), cpu_opcode.name(), cpu_addmode.name());
+    case (state)
+      common_types::fetch: begin
+        opcode <= decode_opcode;
+        addmode <= decode_addmode;
+        // no change on PC
       end
+      common_types::decode:
+        case (addmode)
+          common_types::IMP: PC <= PC + 1;
+          common_types::IMM: PC <= PC + 2;
+          default PC <= PC;
+        endcase
       default: PC <= PC;
     endcase
     clocks <= clocks + 1;
   end
 
-  // memory
+
+  // next state
   always_ff @ (posedge clk) begin
     case (state)
-      common_types::fetch: IR <= memory_table[PC[8:0]];
-      default: IR <= IR;
+      common_types::fetch: state <= common_types::decode;
+      common_types::decode: state <= common_types::fetch;
+      default: state <= state;
     endcase
-  end
-
-
-  always_ff @ (posedge clk or posedge rst) begin
-    if (rst) begin
-      state <= common_types::rst0;
-    end else begin
-      case (state)
-        common_types::rst0: state <= common_types::fetch;
-        common_types::fetch: state <= common_types::decode;
-        common_types::decode: state <= common_types::fetch;
-        default: state <= common_types::rst0;
-      endcase
-    end
   end
 
 endmodule

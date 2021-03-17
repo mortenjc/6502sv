@@ -17,7 +17,7 @@
 // struct TestCase {
 // };
 //
-// using opc_t = decode_common_types::opc_t;
+using state = cpuunit_common_types::state_t;
 //
 // std::vector<struct TestCase> TestCases {
 //
@@ -63,16 +63,32 @@ TEST_F(CPUunitTest, Constructor) {
   ASSERT_EQ(u->clocks, 0);
 }
 
-TEST_F(CPUunitTest, ThirtyClocks) {
-  clockCycles(40);
-  ASSERT_EQ(u->clocks, 39);
+TEST_F(CPUunitTest, InstrINX) {
+  u->state = state::fetch;
+  u->PC = 0x0010;
+  clockCycles(18); // 16 instr * 2 cycles + 2
+  ASSERT_EQ(u->X, 16);
+  ASSERT_EQ(u->state, state::fetch);
 }
+
+TEST_F(CPUunitTest, InstrLDXI) {
+  u->state = state::fetch;
+  u->PC = 0x0030;
+  clockCycles(5); //
+  ASSERT_EQ(u->X, 0xAA);
+  ASSERT_EQ(u->state, state::fetch);
+}
+
+// TEST_F(CPUunitTest, ThirtyClocks) {
+//   clockCycles(40);
+//   ASSERT_EQ(u->clocks, 39);
+// }
 
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   testing::InitGoogleTest(&argc, argv);
   auto res = RUN_ALL_TESTS();
-  VerilatedCov::write("logs/ledunit.dat");
+  VerilatedCov::write("logs/cpuunit.dat");
   return res;
 }

@@ -12,14 +12,14 @@ typedef logic[7:0] data_t /* verilator public */ ;
 
 // enums
 typedef enum logic [1:0] {
-  rst0, fetch, decode
+  fetch, decode
 } state_t /* verilator public */ ;
 
 
 // Opcodes
 // Mostly from http://nparker.llx.com/a2/opcodes.html
 typedef enum logic [5:0] {
-  U,
+  _uopc_,
   ORA, AND, EOR, ADC,   STA, LDA, CMP, SBC,
   ASL, ROL, LSR, ROR,   STX, LDX, DEC, INC,
   BIT, JMP, STY, LDY,   CPY, CPX,
@@ -33,7 +33,8 @@ typedef enum logic [5:0] {
 
 // Addressing modes
 // http://nparker.llx.com/a2/opcodes.html
-typedef enum logic [5:0] {
+typedef enum logic [3:0] {
+  _uaddmod_,
   IXID,      // ZP indexed indirect - ($xx, X)
   ZP,        // Zero Page - $xx
   IMM,       // immediate - #$xx
