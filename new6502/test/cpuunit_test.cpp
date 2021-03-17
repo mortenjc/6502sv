@@ -81,6 +81,36 @@ TEST_F(CPUunitTest, InstrLDXI) {
   ASSERT_EQ(u->PC, 0x0032);
 }
 
+TEST_F(CPUunitTest, InstrLDXI_ZFlagSet) {
+  u->state = state::fetch;
+  u->PC = 0x0070;
+  clockCycles(3); // 1 inst
+  ASSERT_EQ(u->X, 0x00);
+  ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x0072);
+  ASSERT_EQ(u->S, 0x02); // Z
+}
+
+TEST_F(CPUunitTest, InstrLDXI_ZFlagClear) {
+  u->state = state::fetch;
+  u->PC = 0x0070;
+  clockCycles(5); // 1 inst
+  ASSERT_EQ(u->X, 0x01);
+  ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x0074);
+  ASSERT_EQ(u->S, 0x00); // Z
+}
+
+TEST_F(CPUunitTest, InstrINXTo0) {
+  u->state = state::fetch;
+  u->PC = 0x0098;
+  clockCycles(5); //
+  ASSERT_EQ(u->X, 0x00);
+  ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x009B);
+  ASSERT_EQ(u->S, 0x02); // Zero
+}
+
 TEST_F(CPUunitTest, InstrMixLDXIandINX) {
   u->state = state::fetch;
   u->PC = 0x0040;
@@ -106,6 +136,36 @@ TEST_F(CPUunitTest, InstrJMPA) {
   printf("PC: %04x: addrlo: $%02x, addrhi: $%02x\n", u->PC, u->addrlo, u->addrhi);
   ASSERT_EQ(u->state, state::fetch);
   ASSERT_EQ(u->PC, 0x0050);
+}
+
+TEST_F(CPUunitTest, InstrBEQ_NotTaken) {
+  u->state = state::fetch;
+  u->PC = 0x0080;
+  clockCycles(5); // 2 inst * 2 cycles + 1
+  ASSERT_EQ(u->X, 0x01);
+  ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x0084);
+  ASSERT_EQ(u->S, 0x00); // Not zero
+}
+
+TEST_F(CPUunitTest, InstrBEQ_Taken) {
+  u->state = state::fetch;
+  u->PC = 0x0090;
+  clockCycles(5); // 2 inst * 2 cycles + 1
+  ASSERT_EQ(u->X, 0x00);
+  ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x0096);
+  ASSERT_EQ(u->S, 0x02); // Zero
+}
+
+TEST_F(CPUunitTest, FirstLoop) {
+  u->state = state::fetch;
+  u->PC = 0x00A0;
+  clockCycles(112);
+  ASSERT_EQ(u->X, 0x00);
+  ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x00A8);
+  ASSERT_EQ(u->S, 0x02); // Zero
 }
 
 
