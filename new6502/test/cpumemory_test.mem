@@ -28,7 +28,7 @@ A2 00 F0 02  E8 E8 00 00 // $0090: BEQ (taken), expect (?) PC == 0x0096 ?
 
 A2 FF E8 00  00 00 00 00 // $0098: INC X from FF to 00, expect Z == 1
 
-//                          0x00A0 first loop!
+// address 0x00A0        first loop!
 A2 F0                    // $00A0 LDX #$F0
 E8                       // $00A2 INX
 F0  03                   // $00A3 BEQ $00

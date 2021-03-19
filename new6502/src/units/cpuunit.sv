@@ -60,7 +60,7 @@ module cpuunit(
   always_ff @ (posedge clk) begin
    if (debug)
      $display("clock: %d, PC: %h, IR %h [X:%h S:%h] (state: %-6s, opcode %3s, mode %5s)",
-              clocks, PC, IR, X, S, state.name(), opc.name(), addmode.name());
+              clocks, PC, IR, X, S, state.name, opc.name, addmode.name);
   end
 
 
