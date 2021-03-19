@@ -1,25 +1,44 @@
 EA 18 E8 EA  EA C8 EA EA
 EA E8 E8 8A  FF 00 00 00
-E8 E8 E8 E8  E8 E8 E8 E8 // x0010 - Test: InstrINX
+
+E8 E8 E8 E8  E8 E8 E8 E8 // $0010 - Test: InstrINX
 E8 E8 E8 E8  E8 E8 E8 E8 // expect X == 16
 00 00 00 00  00 00 00 00
 00 00 00 00  00 00 00 00
-A2 AA 00 00  00 00 00 00 // 0x0030: InstrLDXI, expect X == $AA
+
+A2 AA 00 00  00 00 00 00 // $0030: InstrLDXI, expect X == $AA
 00 00 00 00  00 00 00 00
-A2 BB E8 00  00 00 00 00 // 0x0040: InstrMixLDXIandINX, expect X == $BC
+
+A2 BB E8 00  00 00 00 00 // $0040: InstrMixLDXIandINX, expect X == $BC
 00 00 00 00  00 00 00 00
-A6 0C 00 00  00 00 00 00 // 0x0050: InstrLDXZP, expect X == $FF
+
+A6 0C 00 00  00 00 00 00 // $0050: InstrLDXZP, expect X == $FF
 00 00 00 00  00 00 00 00
-4C 50 00 00  00 00 00 00 // 0x0060: InstrJMPA, expect X == $FF, PC == 0x0050
+
+4C 50 00 00  00 00 00 00 // $0060: InstrJMPA, expect X == $FF, PC == 0x0050
 00 00 00 00  00 00 00 00
-A2 00 A2 01  00 00 00 00 // 0x0070: LDX# 00, expect Z == 1, (and #01, Z == 0)
+
+A2 00 A2 01  00 00 00 00 // $0070: LDX# 00, expect Z == 1, (and #01, Z == 0)
 00 00 00 00  00 00 00 00
-A2 01 F0 20  00 00 00 00 // 0x0080: BEQ (not taken), expect PC == 0x0084
+
+A2 01 F0 20  00 00 00 00 // $0080: BEQ (not taken), expect PC == 0x0084
 00 00 00 00  00 00 00 00
-A2 00 F0 02  E8 E8 00 00 // 0x0090: BEQ (taken), expect (?) PC == 0x0096 ?
-A2 FF E8 00  00 00 00 00 // 0x0098: INC X from FF to 00, expect Z == 1
-A2 F0 E8 F0  03 4C A2 00 // 0x00A0: Loop!
-00 00 00 00  00 00 00 00
+
+A2 00 F0 02  E8 E8 00 00 // $0090: BEQ (taken), expect (?) PC == 0x0096 ?
+
+A2 FF E8 00  00 00 00 00 // $0098: INC X from FF to 00, expect Z == 1
+
+//                          0x00A0 first loop!
+A2 F0                    // $00A0 LDX #$F0
+E8                       // $00A2 INX
+F0  03                   // $00A3 BEQ $00
+4C A2 00                 // $00A5 JMP $00A2
+EA                       // $00A8 NOP
+EA                       // $00A9 NOP
+EA                       // $00AA NOP
+00 00 00 00  00          //
+
+// 0x00B0
 00 00 00 00  00 00 00 00
 00 00 00 00  00 00 00 00
 00 00 00 00  00 00 00 00

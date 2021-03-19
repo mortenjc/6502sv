@@ -158,13 +158,22 @@ TEST_F(CPUunitTest, InstrBEQ_Taken) {
   ASSERT_EQ(u->S, 0x02); // Zero
 }
 
+//  Simple loop over X
+//  0x00A0 LDX #$F0
+//  0x00A2 INX
+//  0x00A3 BEQ $00A7
+//  0x00A5 JMP $00A2
+//  0x00A8 NOP
+//  0x00A9 NOP
+//  0x00AA NOP
 TEST_F(CPUunitTest, FirstLoop) {
   u->state = state::fetch;
   u->PC = 0x00A0;
-  clockCycles(112);
+  u->debug = 1;
+  clockCycles(118);
   ASSERT_EQ(u->X, 0x00);
   ASSERT_EQ(u->state, state::fetch);
-  ASSERT_EQ(u->PC, 0x00A8);
+  ASSERT_EQ(u->PC, 0x00AB);
   ASSERT_EQ(u->S, 0x02); // Zero
 }
 

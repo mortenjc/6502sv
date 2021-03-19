@@ -15,6 +15,7 @@ import common_types::opc_t;
 
 module cpuunit(
   input bit clk,
+  input bit debug,
 
   output data_t X,
   // debug
@@ -34,7 +35,7 @@ module cpuunit(
   data_t lIR;
   assign lIR = memory_table[PC[8:0]];
 
-  // always updated will be stored during fetch
+  // always updated, will be stored during fetch
   opc_t decode_opcode;
   addmod_t decode_addmode;
   decode decode_i(
@@ -49,16 +50,17 @@ module cpuunit(
   data_t memory_table[512];
 
   initial begin
-    $display("Loading rom ...");
+    if (debug)
+      $display("Loading rom ...");
     $readmemh(memory_file, memory_table);
   end
 
 
   // Debug
   always_ff @ (posedge clk) begin
-   $display("clock: %d, PC: %h, IR %h alo %h ahi %h [X:%h S:%h] (state: %-6s, opcode %3s, mode %5s)",
-            clocks, PC, IR, addrlo, addrhi,
-            X, S, state.name(), opc.name(), addmode.name());
+   if (debug)
+     $display("clock: %d, PC: %h, IR %h [X:%h S:%h] (state: %-6s, opcode %3s, mode %5s)",
+              clocks, PC, IR, X, S, state.name(), opc.name(), addmode.name());
   end
 
 
