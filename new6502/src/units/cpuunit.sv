@@ -30,10 +30,16 @@ module cpuunit(
   output data_t S
   );
 
+  // status flags
   bit Z;
   assign S = {6'b0, Z, 1'b0};
-  data_t lIR;
+
+  // local variables
+  data_t lIR, lOP1, lOP2;
   assign lIR = memory_table[PC[8:0]];
+  assign lOP1 = memory_table[PC[8:0] + 1];
+  assign lOP2 = memory_table[PC[8:0] + 2];
+
 
   // always updated, will be stored during fetch
   opc_t decode_opcode;
@@ -75,14 +81,14 @@ module cpuunit(
         case (opc)
           common_types::JMP:
             if (addmode == common_types::ABS)
-              addrlo <= memory_table[PC[8:0] + 1];
+              addrlo <= lOP1;
 
           common_types::LDX:
             if (addmode == common_types::ZP)
-              addrlo <= memory_table[PC[8:0] + 1];
+              addrlo <= lOP1;
             else begin
-              X <= memory_table[PC[8:0] + 1];
-              Z <= memory_table[PC[8:0] + 1] == 0 ? 1 : 0;
+              X <= lOP1;
+              Z <= lOP1 == 0 ? 1 : 0;
             end
 
           common_types::INX: begin
@@ -99,7 +105,7 @@ module cpuunit(
           Z <= memory_table[{1'b0, addrlo}] == 8'b0 ? 1 : 0;
           end
         else if (opc == common_types::JMP)
-          addrhi <= memory_table[PC[8:0] + 2];
+          addrhi <= lOP2;
 
       default: nop <= nop;
     endcase
@@ -120,7 +126,10 @@ module cpuunit(
             if (opc == common_types::BEQ && ~S[1])
               PC <= PC + 16'd2;
             else if (opc == common_types::BEQ && S[1])
-              PC <= PC + {8'b0, memory_table[PC[8:0] + 1]} + 16'd2;
+              if (lOP1[7]) // negative
+                PC <= PC - (16'h0100 - {8'b0, lOP1});
+              else
+                PC <= PC + {8'b0, lOP1} + 16'd2;
 
           common_types::IMP: PC <= PC + 16'd1;
 

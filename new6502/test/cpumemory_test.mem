@@ -21,17 +21,43 @@ A6 0C 00 00  00 00 00 00 // $0050: InstrLDXZP, expect X == $FF
 A2 00 A2 01  00 00 00 00 // $0070: LDX# 00, expect Z == 1, (and #01, Z == 0)
 00 00 00 00  00 00 00 00
 
-A2 01 F0 20  00 00 00 00 // $0080: BEQ (not taken), expect PC == 0x0084
-00 00 00 00  00 00 00 00
 
-A2 00 F0 02  E8 E8 00 00 // $0090: BEQ (taken), expect (?) PC == 0x0096 ?
+// $0080: BEQ (positive, not taken), expect PC == 0x0084
+A2 01                    // $0080 LDX #$01
+F0 20                    // $0082 BEQ
+00 00 00 00
 
-A2 FF E8 00  00 00 00 00 // $0098: INC X from FF to 00, expect Z == 1
 
-// address 0x00A0        first loop!
+// $0088: BEQ (negative, taken)
+EA                       // $0088 NOP
+A2 00                    // $0089 LDX #$00
+F0 FD                    // $008B BEQ $0088 (-3)
+E8                       // $008D INX
+E8                       // $008E INX
+00
+
+
+
+// $0090 - BEQ (taken), expect (?) PC == 0x0096 ?
+A2 00                    // $0090 LDX #$00
+F0 02                    // $0092 BEQ $0000
+E8                       // $0094 INX
+E8                       // $0095 INX
+EA                       // $0096 NOP
+E8                       // $0097 INX
+
+
+// $0098 - INC X from FF to 00, expect Z == 1
+A2 FF                    // $0098 LDX #$FF
+E8                       // $009A INX
+EA                       // $009B NOP
+00 00 00 00
+
+
+// 0x00A0 - first loop!
 A2 F0                    // $00A0 LDX #$F0
 E8                       // $00A2 INX
-F0  03                   // $00A3 BEQ $00
+F0 03                    // $00A3 BEQ $00A8 (+3)
 4C A2 00                 // $00A5 JMP $00A2
 EA                       // $00A8 NOP
 EA                       // $00A9 NOP

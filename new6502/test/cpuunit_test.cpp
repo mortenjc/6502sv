@@ -44,6 +44,7 @@ protected:
 
   void SetUp( ) {
     u = new cpuunit;
+    u->debug = 1;
   }
 
   void TearDown( ) {
@@ -151,25 +152,31 @@ TEST_F(CPUunitTest, InstrBEQ_NotTaken) {
 TEST_F(CPUunitTest, InstrBEQ_Taken) {
   u->state = state::fetch;
   u->PC = 0x0090;
-  clockCycles(5); // 2 inst * 2 cycles + 1
+  //u->debug = 0;
+  clockCycles(7); // 2 inst * 2 cycles + 1
   ASSERT_EQ(u->X, 0x00);
   ASSERT_EQ(u->state, state::fetch);
-  ASSERT_EQ(u->PC, 0x0096);
+  ASSERT_EQ(u->PC, 0x0097);
   ASSERT_EQ(u->S, 0x02); // Zero
 }
 
-//  Simple loop over X
-//  0x00A0 LDX #$F0
-//  0x00A2 INX
-//  0x00A3 BEQ $00A7
-//  0x00A5 JMP $00A2
-//  0x00A8 NOP
-//  0x00A9 NOP
-//  0x00AA NOP
+TEST_F(CPUunitTest, InstrBEQ_Neg_Taken) {
+  u->X = 0xAA;
+  u->state = state::fetch;
+  u->PC = 0x0088;
+  //u->debug = 1;
+  clockCycles(9); //
+  ASSERT_EQ(u->X, 0x00);
+  ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x0089);
+  ASSERT_EQ(u->S, 0x02); // Zero
+}
+
+
 TEST_F(CPUunitTest, FirstLoop) {
   u->state = state::fetch;
   u->PC = 0x00A0;
-  u->debug = 1;
+  //u->debug = 0;
   clockCycles(118);
   ASSERT_EQ(u->X, 0x00);
   ASSERT_EQ(u->state, state::fetch);
