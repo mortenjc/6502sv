@@ -6,9 +6,9 @@
 //===----------------------------------------------------------------------===//
 
 module ledctrl(
-   input bit[7:0] value,
-	 output bit[7:0] led
-	);
+  input  bit[7:0] value,
+  output bit[7:0] led
+  );
 
   bit [6:0] disp;
 	always_comb begin
@@ -40,13 +40,14 @@ module ledctrl(
       // OP - OPcode
       65: disp = 7'b0001000; // A
       67: disp = 7'b1000110; // C
-      68: disp = 7'b1000001; // d
+      68: disp = 7'b0100001; // d
       73: disp = 7'b1111001; // I
       78: disp = 7'b1001000; // N
       79: disp = 7'b1000000; // O
-      80: disp = 7'b0000100; // P
+      80: disp = 7'b0001100; // P
       83: disp = 7'b0010010; // S
       84: disp = 7'b0000111; // T
+		88: disp = 7'b0001001; // X
 
       127: disp = 7'b1111111; // OFF
 	   default:

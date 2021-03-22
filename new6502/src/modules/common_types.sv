@@ -56,10 +56,11 @@ typedef enum logic [3:0] {
 typedef enum logic [2:0] {
   CC,
   PC,
-  ADDR,
-  OP,
   INSTR,
-  STATE
+  X,
+  OP,
+  STATE,
+  ADDR
 } dispsel_t /* verilator public */ ;
 
 endpackage : common_types

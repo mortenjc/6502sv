@@ -19,6 +19,7 @@ module decode(
   // decode addressing modes
   always_comb begin
     case (instr)
+	   8'hff: mode = common_types::_uaddmod_;
       //
       8'h00: mode = common_types::IMP; // BRK
       8'h08: mode = common_types::IMP; // PHP
@@ -105,6 +106,7 @@ module decode(
   // Decode opcodes
   always_comb begin
   case (instr)
+    8'hff: opcode = common_types::_uopc_;
     //
     8'h00: opcode = common_types::BRK;
     8'h20: opcode = common_types::JSR;

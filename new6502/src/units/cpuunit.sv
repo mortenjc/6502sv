@@ -15,7 +15,8 @@ import common_types::opc_t;
 
 module cpuunit(
   input bit clk,
-  input bit debug,
+  input bit rst,
+  //input bit debug,
 
   output data_t X,
   // debug
@@ -56,18 +57,18 @@ module cpuunit(
   data_t memory_table[512];
 
   initial begin
-    if (debug)
-      $display("Loading rom ...");
+    //if (debug)
+    //  $display("Loading rom ...");
     $readmemh(memory_file, memory_table);
   end
 
 
   // Debug
-  always_ff @ (posedge clk) begin
-   if (debug)
-     $display("clock: %d, PC: %h, IR %h [X:%h S:%h] (state: %-6s, opcode %3s, mode %5s)",
-              clocks, PC, IR, X, S, state.name, opc.name, addmode.name);
-  end
+  //always_ff @ (posedge clk) begin
+   //if (debug)
+   //  $display("clock: %d, PC: %h, IR %h [X:%h S:%h] (state: %-6s, opcode %3s, mode %5s)",
+   //           clocks, PC, IR, X, S, state.name, opc.name, addmode.name);
+  //end
 
 
   data_t nop;
@@ -88,12 +89,12 @@ module cpuunit(
               addrlo <= lOP1;
             else begin
               X <= lOP1;
-              Z <= lOP1 == 0 ? 1 : 0;
+              Z <= lOP1 == 0 ? '1 : '0;
             end
 
           common_types::INX: begin
             X <= X + 8'd1;
-            Z <= X == 8'hff ? 1 : 0;
+            Z <= X == 8'hff ? '1 : '0;
             end
 
           default: nop <= nop;
@@ -102,7 +103,7 @@ module cpuunit(
       common_types::memlo:
         if (opc == common_types::LDX) begin
           X <= memory_table[{1'b0, addrlo}];
-          Z <= memory_table[{1'b0, addrlo}] == 8'b0 ? 1 : 0;
+          Z <= memory_table[{1'b0, addrlo}] == 8'b0 ? '1 : '0;
           end
         else if (opc == common_types::JMP)
           addrhi <= lOP2;
@@ -113,6 +114,9 @@ module cpuunit(
 
   // PC and clocks handling
   always_ff @ (posedge clk) begin
+    if (rst == 0)
+	   PC <= 16'h00A0;
+	 else begin
     case (state)
       common_types::fetch: begin
         opc <= decode_opcode;
@@ -122,10 +126,12 @@ module cpuunit(
 
       common_types::decode:
         case (addmode)
+		    common_types::_uaddmod_: PC <= PC; // Halt
+			 
           common_types::REL:
-            if (opc == common_types::BEQ && ~S[1])
+            if ((opc == common_types::BEQ && ~S[1]) || (opc == common_types::BNE && S[1]))
               PC <= PC + 16'd2;
-            else if (opc == common_types::BEQ && S[1])
+            else if ((opc == common_types::BEQ && S[1]) || (opc == common_types::BNE && ~S[1]))
               if (lOP1[7]) // negative
                 PC <= PC - (16'h0100 - {8'b0, lOP1});
               else
@@ -147,11 +153,14 @@ module cpuunit(
       default: PC <= PC;
     endcase
     clocks <= clocks + 1'd1;
+	 end
   end
 
 
   // next state
   always_ff @ (posedge clk) begin
+    if (rst == 0)
+	   state <= common_types::fetch;
     case (state)
       common_types::fetch: state <= common_types::decode;
       common_types::decode:
