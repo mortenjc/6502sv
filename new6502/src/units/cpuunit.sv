@@ -167,16 +167,17 @@ module cpuunit(
   always_ff @ (posedge clk) begin
     if (rst == 0)
 	   state <= common_types::fetch;
-    case (state)
-      common_types::fetch: state <= common_types::decode;
-      common_types::decode:
-        if (addmode == common_types::ZP || addmode == common_types::ABS)
-          state <= common_types::memlo;
-        else
-          state <= common_types::fetch;
-      common_types::memlo: state <= common_types::fetch;
-      default: state <= state;
-    endcase
+    else
+      case (state)
+        common_types::fetch: state <= common_types::decode;
+        common_types::decode:
+          if (addmode == common_types::ZP || addmode == common_types::ABS)
+            state <= common_types::memlo;
+          else
+            state <= common_types::fetch;
+        common_types::memlo: state <= common_types::fetch;
+        default: state <= state;
+      endcase
   end
 
 endmodule

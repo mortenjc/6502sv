@@ -63,4 +63,15 @@ typedef enum logic [2:0] {
   ADDR
 } dispsel_t /* verilator public */ ;
 
+
+// ReadWrite
+typedef enum bit {
+  Read, Write
+} rw_t;
+
+// Register file
+typedef enum logic [2:0] {
+  X, Y, A, PClo, PChi, Mlo, Mhi, SP
+} regf_t;
+
 endpackage : common_types
