@@ -8,7 +8,7 @@ runtest: all $(TARGETS)
 	for test in $(TARGETS); do ./$$test || exit 1; done
 
 
-coverage: runtest
+coverage:
 	verilator_coverage $(VLCOVFLAGS) -write-info logs/merged.info $(COVTARGETS)
 	genhtml logs/merged.info --output-directory logs/html
 

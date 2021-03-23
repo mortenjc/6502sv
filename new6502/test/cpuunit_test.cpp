@@ -14,16 +14,7 @@
 #include <math.h>
 
 
-// struct TestCase {
-// };
-//
 using state = cpuunit_common_types::state_t;
-//
-// std::vector<struct TestCase> TestCases {
-//
-// };
-
-
 
 //
 // Test harness
@@ -44,7 +35,8 @@ protected:
 
   void SetUp( ) {
     u = new cpuunit;
-    u->debug = 1;
+    u->debug = 0;
+    u->rst = 1; // No reset
   }
 
   void TearDown( ) {
@@ -160,6 +152,17 @@ TEST_F(CPUunitTest, InstrBEQ_Taken) {
   ASSERT_EQ(u->S, 0x02); // Zero
 }
 
+TEST_F(CPUunitTest, InstrBNE_Neg_Taken) {
+  u->state = state::fetch;
+  u->PC = 0x00C0;
+  clockCycles(73); //
+  ASSERT_EQ(u->X, 0x00);
+  ASSERT_EQ(u->state, state::fetch);
+  ASSERT_EQ(u->PC, 0x00C7);
+  ASSERT_EQ(u->S, 0x02); // Zero
+  ASSERT_EQ(u->IR, 0xFF);
+}
+
 TEST_F(CPUunitTest, InstrBEQ_Neg_Taken) {
   u->X = 0xAA;
   u->state = state::fetch;
@@ -182,6 +185,14 @@ TEST_F(CPUunitTest, FirstLoop) {
   ASSERT_EQ(u->state, state::fetch);
   ASSERT_EQ(u->PC, 0x00AB);
   ASSERT_EQ(u->S, 0x02); // Zero
+}
+
+TEST_F(CPUunitTest, TestHaltInstruction) {
+  u->state = state::fetch;
+  u->PC = 0x00B0;
+  u->debug = 1;
+  clockCycles(10);
+  ASSERT_EQ(u->PC, 0x00B0);
 }
 
 

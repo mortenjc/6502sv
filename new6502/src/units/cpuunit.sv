@@ -3,7 +3,7 @@
 ///
 /// \file
 /// \brief 6502 CPU attempt
-/// opcodes: INX, LDX #, LDX ZP, JMP ABS, BEQ
+/// opcodes: INX, DEX, LDX #, LDX ZP, JMP ABS, BEQ, BNE
 /// flags: Z
 //===----------------------------------------------------------------------===//
 
@@ -16,7 +16,7 @@ import common_types::opc_t;
 module cpuunit(
   input bit clk,
   input bit rst,
-  //input bit debug,
+  input bit debug,
 
   output data_t X,
   // debug
@@ -57,18 +57,18 @@ module cpuunit(
   data_t memory_table[512];
 
   initial begin
-    //if (debug)
-    //  $display("Loading rom ...");
+    if (debug)
+     $display("Loading rom ...");
     $readmemh(memory_file, memory_table);
   end
 
 
   // Debug
-  //always_ff @ (posedge clk) begin
-   //if (debug)
-   //  $display("clock: %d, PC: %h, IR %h [X:%h S:%h] (state: %-6s, opcode %3s, mode %5s)",
-   //           clocks, PC, IR, X, S, state.name, opc.name, addmode.name);
-  //end
+  always_ff @ (posedge clk) begin
+   if (debug)
+    $display("clock: %d, PC: %h, IR %h [X:%h S:%h] (state: %-6s, opcode %3s, mode %5s)",
+             clocks, PC, IR, X, S, state.name, opc.name, addmode.name);
+  end
 
 
   data_t nop;
@@ -97,6 +97,11 @@ module cpuunit(
             Z <= X == 8'hff ? '1 : '0;
             end
 
+          common_types::DEX: begin
+            X <= X - 8'd1;
+            Z <= X == 8'h01 ? '1 : '0;
+            end
+
           default: nop <= nop;
         endcase
 
@@ -112,48 +117,49 @@ module cpuunit(
     endcase
   end
 
+
   // PC and clocks handling
   always_ff @ (posedge clk) begin
     if (rst == 0)
 	   PC <= 16'h00A0;
-	 else begin
-    case (state)
-      common_types::fetch: begin
-        opc <= decode_opcode;
-        addmode <= decode_addmode;
-        // no change on PC
-      end
+    else if (opc == common_types::HLT)
+      PC <= PC;
+	  else begin
+      case (state)
+        common_types::fetch: begin
+          opc <= decode_opcode;
+          addmode <= decode_addmode;
+          // no change on PC
+        end
 
-      common_types::decode:
-        case (addmode)
-		    common_types::_uaddmod_: PC <= PC; // Halt
-			 
-          common_types::REL:
-            if ((opc == common_types::BEQ && ~S[1]) || (opc == common_types::BNE && S[1]))
-              PC <= PC + 16'd2;
-            else if ((opc == common_types::BEQ && S[1]) || (opc == common_types::BNE && ~S[1]))
-              if (lOP1[7]) // negative
-                PC <= PC - (16'h0100 - {8'b0, lOP1});
-              else
-                PC <= PC + {8'b0, lOP1} + 16'd2;
+        common_types::decode:
+          case (addmode)
+            common_types::REL:
+              if ((opc == common_types::BEQ && ~S[1]) || (opc == common_types::BNE && S[1]))
+                PC <= PC + 16'd2;
+              else if ((opc == common_types::BEQ && S[1]) || (opc == common_types::BNE && ~S[1]))
+                if (lOP1[7]) // negative
+                  PC <= PC - (16'h0100 - {8'b0, lOP1});
+                else
+                  PC <= PC + {8'b0, lOP1} + 16'd2;
 
-          common_types::IMP: PC <= PC + 16'd1;
+            common_types::IMP: PC <= PC + 16'd1;
 
-          common_types::IMM: PC <= PC + 16'd2;
+            common_types::IMM: PC <= PC + 16'd2;
 
-          default: PC <= PC;
-        endcase
+            default: PC <= PC;
+          endcase
 
-      common_types::memlo:
-        if (addmode == common_types::ZP)
-          PC <= PC + 16'd2;
-        else if (addmode == common_types::ABS)
-          PC <= {addrhi, addrlo};
+        common_types::memlo:
+          if (addmode == common_types::ZP)
+            PC <= PC + 16'd2;
+          else if (addmode == common_types::ABS)
+            PC <= {addrhi, addrlo};
 
-      default: PC <= PC;
-    endcase
+        default: PC <= PC;
+      endcase
     clocks <= clocks + 1'd1;
-	 end
+	  end
   end
 
 

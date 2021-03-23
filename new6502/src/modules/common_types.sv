@@ -28,7 +28,8 @@ typedef enum logic [5:0] {
   BRK, JSR, RTI, RTS,
   PHP, PLP, PHA, PLA,   DEY, TAY, INY, INX,
   CLC, SEC, CLI, SEI,   TYA, CLV, CLD, SED,
-  TXA, TXS, TAX, TSX,   DEX, NOP
+  TXA, TXS, TAX, TSX,   DEX, NOP,
+  HLT
 } opc_t /* verilator public */ ;
 
 
@@ -48,8 +49,7 @@ typedef enum logic [3:0] {
   ABSY,      // Absolute Y - $xxxx,Y
   ACC,       // Accumulator
   REL,       // Relative
-  IMP,       // Implied
-  UNKN       // Unknown - unassigned
+  IMP       // Implied
 } addmod_t /* verilator public */ ;
 
 // Selector for displaying data on the 7 segment display

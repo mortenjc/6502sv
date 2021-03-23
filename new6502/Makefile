@@ -3,9 +3,9 @@
 
 include makefiles/Makefile.macros
 
-MODULES = decode #cpu
-UNITS = ledunit cpuunit
-UNITS.ledunit = src/modules/ledctrl.sv
+#MODULES = decode #cpu
+UNITS = cpuunit #ledunit 
+#UNITS.ledunit = src/modules/ledctrl.sv
 UNITS.cpuunit = src/modules/decode.sv
 CFLAGS.cpuunit = -Gmemory_file='"test/cpumemory_test.mem"'
 

@@ -19,7 +19,6 @@ module decode(
   // decode addressing modes
   always_comb begin
     case (instr)
-	   8'hff: mode = common_types::_uaddmod_;
       //
       8'h00: mode = common_types::IMP; // BRK
       8'h08: mode = common_types::IMP; // PHP
@@ -83,7 +82,7 @@ module decode(
               3: mode = common_types::ABS;
               5: mode = common_types::ZPX;
               7: mode = common_types::ABSX;
-              default: mode = common_types::UNKN;
+              default: mode = common_types::_uaddmod_;
             endcase
           // cc = 00 instructions
           8'b??????00:
@@ -93,10 +92,10 @@ module decode(
               3: mode = common_types::ABS;
               5: mode = common_types::ZPX;
               7: mode = common_types::ABSX;
-              default: mode = common_types::UNKN;
+              default: mode = common_types::_uaddmod_;
             endcase
 
-          default: mode = common_types::UNKN; // casez
+          default: mode = common_types::_uaddmod_; // casez
         endcase // casez (instr)
 
       endcase // case (instr)
@@ -106,7 +105,7 @@ module decode(
   // Decode opcodes
   always_comb begin
   case (instr)
-    8'hff: opcode = common_types::_uopc_;
+    8'hff: opcode = common_types::HLT; // Virtual 'halt' opcode
     //
     8'h00: opcode = common_types::BRK;
     8'h20: opcode = common_types::JSR;
