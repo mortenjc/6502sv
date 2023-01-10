@@ -35,7 +35,7 @@ protected:
 
   void SetUp( ) {
     u = new cpuunit;
-    u->debug = 0;
+    u->debug = 1;
     u->rst = 1; // No reset
   }
 
@@ -144,7 +144,6 @@ TEST_F(CPUunitTest, InstrBEQ_NotTaken) {
 TEST_F(CPUunitTest, InstrBEQ_Taken) {
   u->state = state::fetch;
   u->PC = 0x0090;
-  //u->debug = 0;
   clockCycles(7); // 2 inst * 2 cycles + 1
   ASSERT_EQ(u->X, 0x00);
   ASSERT_EQ(u->state, state::fetch);
@@ -167,7 +166,6 @@ TEST_F(CPUunitTest, InstrBEQ_Neg_Taken) {
   u->X = 0xAA;
   u->state = state::fetch;
   u->PC = 0x0088;
-  //u->debug = 1;
   clockCycles(9); //
   ASSERT_EQ(u->X, 0x00);
   ASSERT_EQ(u->state, state::fetch);
@@ -179,7 +177,7 @@ TEST_F(CPUunitTest, InstrBEQ_Neg_Taken) {
 TEST_F(CPUunitTest, FirstLoop) {
   u->state = state::fetch;
   u->PC = 0x00A0;
-  //u->debug = 0;
+  //u->debug = 1;
   clockCycles(118);
   ASSERT_EQ(u->X, 0x00);
   ASSERT_EQ(u->state, state::fetch);
@@ -190,7 +188,6 @@ TEST_F(CPUunitTest, FirstLoop) {
 TEST_F(CPUunitTest, TestHaltInstruction) {
   u->state = state::fetch;
   u->PC = 0x00B0;
-  u->debug = 1;
   clockCycles(10);
   ASSERT_EQ(u->PC, 0x00B0);
 }

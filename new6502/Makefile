@@ -3,14 +3,14 @@
 
 include makefiles/Makefile.macros
 
-#MODULES = decode #cpu
-UNITS = cpuunit #ledunit 
-#UNITS.ledunit = src/modules/ledctrl.sv
+MODULES = decode
+UNITS = cpuunit ledunit
+UNITS.ledunit = src/modules/ledctrl.sv
 UNITS.cpuunit = src/modules/decode.sv
 CFLAGS.cpuunit = -Gmemory_file='"test/cpumemory_test.mem"'
 
 TARGETS = $(addsuffix Test, $(addprefix bin/, $(MODULES))) $(addsuffix Test, $(addprefix bin/, $(UNITS)))
-COVTARGETS = $(addsuffix .dat, $(addprefix logs/, $(MODULES)))
+COVTARGETS = $(addsuffix .dat, $(addprefix logs/, $(MODULES))) $(addsuffix .dat, $(addprefix logs/, $(UNITS)))
 
 vpath %.sv src/modules src/units
 
